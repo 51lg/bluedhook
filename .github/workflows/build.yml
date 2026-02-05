@@ -1,0 +1,35 @@
+name: build_bluedhook
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Theos
+        run: |
+          # 设置环境变量
+          export THEOS=$HOME/theos
+          # 克隆 Theos 框架
+          git clone --recursive https://github.com/theos/theos.git $THEOS
+          # 下载 iOS SDK (这是打包成功的关键)
+          curl -LO https://github.com/theos/sdks/archive/master.zip
+          unzip master.zip
+          mv sdks-master/*.sdk $THEOS/sdks/
+          rm -rf master.zip sdks-master
+
+      - name: Build Package
+        run: |
+          export THEOS=$HOME/theos
+          # 根据你的截图，源码在 bluedhook 子目录下
+          cd bluedhook 
+          # 开始打包
+          make package
+
+      - name: Upload Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: bluedhook-rootless-deb
+          path: bluedhook/packages/*.deb

@@ -1,0 +1,9 @@
+Package: com.yourname.bluedhook
+Name: bluedhook
+Depends: mobilesubstrate
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: 自动保存闪照增强版
+Maintainer: YourName
+Author: u0x01
+Section: Tweaks
