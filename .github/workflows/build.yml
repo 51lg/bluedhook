@@ -11,26 +11,23 @@ jobs:
       - name: Setup Theos
         run: |
           export THEOS=$HOME/theos
-          # [新增] 使用 Homebrew 安装 ldid 签名工具
           brew install ldid
-          
-          # 克隆 Theos 环境
           git clone --recursive https://github.com/theos/theos.git $THEOS
-          
-          # 下载并配置 SDK
           curl -LO https://github.com/theos/sdks/archive/master.zip
           unzip master.zip
           mv sdks-master/*.sdk $THEOS/sdks/
-          
-          # 补齐 CaptainHook 头文件
           mkdir -p $THEOS/include/CaptainHook
           curl -L https://raw.githubusercontent.com/rpetrich/CaptainHook/master/CaptainHook.h -o $THEOS/include/CaptainHook/CaptainHook.h
 
       - name: Build Package
         run: |
           export THEOS=$HOME/theos
-          # 进入项目子目录
-          cd bluedhook 
+          cd bluedhook
+          
+          # [核心新增]：自动修复 control 文件的换行符问题
+          # 强制将 Windows 换行符 (CRLF) 转换为 Unix 换行符 (LF)
+          perl -pi -e 's/\r\n/\n/g' control
+          
           make package
 
       - name: Upload Package
