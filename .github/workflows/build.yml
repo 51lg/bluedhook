@@ -6,32 +6,35 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # 升级到 v4
+        uses: actions/checkout@v4
 
       - name: Setup Theos
         run: |
           export THEOS=$HOME/theos
-          # 克隆最新 Theos 环境
+          # [新增] 使用 Homebrew 安装 ldid 签名工具
+          brew install ldid
+          
+          # 克隆 Theos 环境
           git clone --recursive https://github.com/theos/theos.git $THEOS
           
-          # 下载适配 iOS 16 的 SDK
+          # 下载并配置 SDK
           curl -LO https://github.com/theos/sdks/archive/master.zip
           unzip master.zip
           mv sdks-master/*.sdk $THEOS/sdks/
           
-          # 补齐缺失的 CaptainHook 工具箱
+          # 补齐 CaptainHook 头文件
           mkdir -p $THEOS/include/CaptainHook
           curl -L https://raw.githubusercontent.com/rpetrich/CaptainHook/master/CaptainHook.h -o $THEOS/include/CaptainHook/CaptainHook.h
 
       - name: Build Package
         run: |
           export THEOS=$HOME/theos
-          # 进入子目录进行打包
+          # 进入项目子目录
           cd bluedhook 
           make package
 
       - name: Upload Package
-        uses: actions/upload-artifact@v4 # 关键修复点：从 v3 改为 v4
+        uses: actions/upload-artifact@v4
         with:
           name: bluedhook-rootless-deb
           path: bluedhook/packages/*.deb
